@@ -1,0 +1,85 @@
+
+######## Splus code to run one trial from Ivanova, Biometrics 2003, 59, 1003-1009.
+######## with  subjects assinged in groups of 3
+######## I hope this is working... 
+ 
+
+omia3_function(xy)
+{	
+model_xy[1]
+maxdose_4
+stage_xy[2]
+e1_xy[3]
+e2_xy[4]
+stoptype_xy[5]
+alp_c(0.05, 0.10, 0.2, 0.3)
+alp1_c(.7,.5,.3,0.1)
+ra_xi.alpha0
+if (model==1)	{prtox_c(.06,.17,.25,.3)	#pr(tox), rk
+		prsucc_c(.2,.7,.6,.5)	#pr(resp & no tox), pk
+		}
+if (model==2)	{prtox_c(.13,.3,.4,.5)	
+		prsucc_c(.7,.5,.5,.4)
+		}
+if (model==3)	{prtox_c(0,.05,.15,.3)
+		prsucc_c(.1,.3,.7,.5)
+		}
+if (model==4)	{prtox_c(0,0,.1,.14)	
+		prsucc_c(.2,.3,.5,.7)
+		}
+
+#prtox_c(.05,.1,.2,.4)
+#prsucc_1-prtox-c(.25,0.7,.35,.45)  
+
+p0_.4
+p1_.6
+cumpr_cbind(prtox,prsucc+prtox,1)
+count <- 0
+respmat_matrix(0,maxdose,3) 
+trials_rep(0,maxdose)
+#y_rep(0,maxdose)
+dosenum_2
+stopdose_rep(0,maxdose)
+stop_0
+maxdose1_maxdose
+mindose1_1
+#  random walk
+while (count < stage && stop==0) {
+		otvet_rank(c(runif(1),cumpr[dosenum,1:2]))[1]
+		respmat[dosenum,otvet]_respmat[dosenum,otvet]+1
+		otvet1_otvet
+		otvet_rank(c(runif(1),cumpr[dosenum,1:2]))[1]
+		respmat[dosenum,otvet]_respmat[dosenum,otvet]+1
+		otvet2_otvet
+		otvet_rank(c(runif(1),cumpr[dosenum,1:2]))[1]
+		respmat[dosenum,otvet]_respmat[dosenum,otvet]+1
+		otvet3_otvet
+		trials[dosenum]_trials[dosenum]+3
+		phattox_respmat[,1]/(trials+.001)
+		y_respmat[,3]
+		phatnrnt_respmat[,3]/(trials+.001)
+		if (otvet1*otvet2==1 || otvet2*otvet3==1 || otvet1*otvet3==1) dosenum_max(dosenum-1,mindose1)
+		if (otvet1*otvet2==9 || otvet2*otvet3==9 || otvet1*otvet3==9)  dosenum_min(dosenum+1,maxdose1)
+		if (phattox[dosenum]>.3) dosenum_max(dosenum-1,mindose1)
+		if (stoptype==1) {#  SPRT
+				wd_respmat[dosenum,2]*log(p1/p0)+(trials[dosenum]-respmat[dosenum,2])*log((1-p1)/(1-p0))
+				if (wd<log(e2/(1-e1)))  {stopdose[dosenum]_sum(trials)
+							if (dosenum==1) mindose1_2
+							if (dosenum==4) maxdose1_3
+							}
+				if (wd>log((1-e2)/e1)) {stop_1; besttrt_dosenum}
+				 }
+		if (stoptype>5) {if (max(trials)>=stoptype) {	stop_1
+								ind7_ifelse(trials>=7,1,0)
+								besttrt_order(respmat[,2]*ind7/(trials+0.00001))[maxdose]
+							    }
+				}
+		count_count+3
+		#print(round(c(count,otvet1,otvet2,dosenum),2))
+		}
+if (stop==0) {	ind7_ifelse(trials>=min(7,max(trials)-1),1,0)
+		besttrt_order(respmat[,2]*ind7/(trials+0.00001))[maxdose]
+	     }							   
+c(trials/sum(trials),sum(trials),sum(respmat[,2]),besttrt)
+}
+
