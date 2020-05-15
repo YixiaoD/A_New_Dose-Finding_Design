@@ -1,22 +1,31 @@
+
+######## Splus code to run one trial from Ivanova, Biometrics 2003, 59, 1003-1009.
+######## with  subjects assinged in groups of 3
+######## I hope this is working... 
+
+
 omia3=function(xy)
 {	
   model=xy[1]
-  maxdose=3
+  maxdose=4
   stage=xy[2]
   e1=xy[3]
   e2=xy[4]
   stoptype=xy[5]
-#  alp=c(0.05, 0.10, 0.2, 0.3)
-#  alp1=c(.7,.5,.3,0.1)
+  alp=c(0.05, 0.10, 0.2, 0.3)
+  alp1=c(.7,.5,.3,0.1)
 #  ra=xi.alpha0
-  if (model==1)	{prtox=c(0.1,0.2,0.3)	#pr(tox), rk
-    prsucc=c((1-0.1)*0.2,(1-0.2)*0.6,(1-0.3)*0.9)	#pr(resp & no tox), pk
+  if (model==1)	{prtox=c(.06,.17,.25,.3)	#pr(tox), rk
+    prsucc=c(.2,.7,.6,.5)	#pr(resp & no tox), pk
   }
-  if (model==2)	{prtox=c(0.15,0.3,0.45)	
-    prsucc=c((1-0.15)*0.25,(1-0.3)*0.4,(1-0.45)*0.95)
+  if (model==2)	{prtox=c(.13,.3,.4,.5)	
+    prsucc=c(.7,.5,.5,.4)
   }
-  if (model==3)	{prtox=c(0.2,0.4,0.7)
-    prsucc=c((1-0.2)*0.3,(1-0.4)*0.9,(1-0.7)*0.9)
+  if (model==3)	{prtox=c(0,.05,.15,.3)
+    prsucc=c(.1,.3,.7,.5)
+  }
+  if (model==4)	{prtox=c(0,0,.1,.14)	
+    prsucc=c(.2,.3,.5,.7)
   }
   
   #prtox_c(.05,.1,.2,.4)
@@ -51,7 +60,7 @@ omia3=function(xy)
     phatnrnt=respmat[,3]/(trials+.001)
     if (otvet1*otvet2==1 || otvet2*otvet3==1 || otvet1*otvet3==1) {dosenum=max(dosenum-1,mindose1)}
     if (otvet1*otvet2==9 || otvet2*otvet3==9 || otvet1*otvet3==9)  {dosenum=min(dosenum+1,maxdose1)}
-    if (phattox[dosenum]>.5) {dosenum=max(dosenum-1,mindose1)}
+    if (phattox[dosenum]>.3) {dosenum=max(dosenum-1,mindose1)}
     if (stoptype==1) {#  SPRT
       wd=respmat[dosenum,2]*log(p1/p0)+(trials[dosenum]-respmat[dosenum,2])*log((1-p1)/(1-p0))
       if (wd<log(e2/(1-e1)))  {stopdose[dosenum]=sum(trials)
@@ -74,9 +83,3 @@ omia3=function(xy)
   c(trials/sum(trials),sum(trials),sum(respmat[,2]),besttrt)
 }
 
-result = matrix(0,10000,6)
-for (i in 1:10000) {
-  result[i,]=omia3(c(2,30,0.075,0.075,1))
-}
-hist(result[,6])
-  
