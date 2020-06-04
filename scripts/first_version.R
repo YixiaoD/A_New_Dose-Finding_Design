@@ -53,18 +53,18 @@ one_sml <- function(scenario,ssize,Tau,m,delta)
     phat0[dwp] <- pava((respmat/trials)[dwp,1])$estim
     for (j in dwp) {
       if (respmat[j,2]>=respmat[j,4]) {phat123[j,] <- pava((respmat/trials)[j,4:2])$estim[3:1]}
-        else {phat123[j,] <- pava((respmat/trials)[j,2:4])$estim}
+      else {phat123[j,] <- pava((respmat/trials)[j,2:4])$estim}
     }
     
     # decide next dosenum
     if (trials[dosenum]<m) {
       dosenum <- dosenum
-    } else if (length(which((1-phat123[,1])>delta))>0) {
-      dosenum <- min(which((1-phat123[,1])>delta))
-    } else if (phat123[dosenum,1]>phat0[dosenum]) {
+    } else if (length(which((1-phat0-phat123[,1]-phat123[,2])>delta))>0) {
+      dosenum <- min(which((1-phat0-phat123[,1]-phat123[,2])>delta))
+    } else if (phat123[dosenum,1]+phat123[dosenum,2]>phat0[dosenum]) {
       dosenum <- min(dosenum+1,maxdose)
-    } else if (phat123[dosenum,1]<=phat0[dosenum]) {
-      diff=phat0-phat123[,1]
+    } else if (phat123[dosenum,1]+phat123[dosenum,2]<=phat0[dosenum]) {
+      diff=phat0-phat123[,1]-phat123[,2]
       if (length(which(diff==0))>0) {dosenum <- min(which(diff==0))}
       else {
         for (k in 1:max((dosenum-1),1)) {
@@ -79,12 +79,13 @@ one_sml <- function(scenario,ssize,Tau,m,delta)
     if (length(phat0)>maxdose) {
       while (phat0[dosenum]>Tau & dosenum>1) {dosenum <- dosenum-1} 
     }
-
+    
     count=count+1
   }
   
   # find the optimal dose
-  score <- (phat123[,1]+2*phat123[,2]+3*phat123[,3])
+  toltox=ifelse(phat0<0.5,1,0)
+  score <- toltox*(phat123[,1]+2*phat123[,2]+3*phat123[,3])
   bestdose <- order(score)[maxdose]
   (bestdose)
 }
@@ -99,10 +100,19 @@ scenario41 = matrix(c(0.1,0.72,0.09,0.09,0.2,0.32,0.24,0.24,0.3,0.07,0.07,0.56,0
 scenario42 = matrix(c(0.15,0.6375,0.17,0.0425,0.3,0.42,0.21,0.07,0.45,0.0275,0.11,0.4125,0.6,0.02,0.06,0.32),byrow=TRUE,ncol=4)
 scenario43 = matrix(c(0.2,0.56,0.16,0.08,0.4,0.06,0.18,0.36,0.7,0.03,0.03,0.24,0.8,0.02,0.02,0.16),byrow=TRUE,ncol=4)
 
+scenariob1 = matrix(c(0.1,0.00,0.45,0.45,0.2,0.32,0.24,0.24,0.3,0.07,0.28,0.35,0.4,0.4,0.1,0.1),byrow=TRUE,ncol=4)
+scenariob2 = matrix(c(0.15,0.55,0.2,0.1,0.3,0.00,0.35,0.35,0.45,0.2,0.2,0.15,0.6,0.4,0.00,0.00),byrow=TRUE,ncol=4)
+scenariob3 = matrix(c(0.0,0.6,0.4,0.0,0.1,0.7,0.2,0.0,0.7,0.1,0.1,0.1,0.8,0.2,0.0,0.0),byrow=TRUE,ncol=4)
+
+scenario61 = matrix(c(0.1,0.5,0.4,0.0,0.2,0.3,0.3,0.2,0.3,0.1,0.25,0.35,0.4,0,0.1,0.5,0.5,0,0,0.5,0.6,0,0,0.4),byrow=TRUE,ncol=4)
+scenario62 = matrix(c(0,1,0,0,0.1,0.9,0,0,0.2,0.7,0.1,0,0.3,0.4,0.2,0.1,0.4,0.1,0.2,0.3,0.5,0,0,0.5),byrow=TRUE,ncol=4)
+scenario63 = matrix(c(0.15,0.4,0.35,0.1,0.3,0.3,0.25,0.15,0.45,0.1,0.15,0.3,0.5,0,0,0.5,0.75,0,0,0.25,0.9,0,0,0.1),byrow=TRUE,ncol=4)
+scenario64 = matrix(c(0.3,0.3,0.2,0.2,0.35,0.3,0.2,0.15,0.4,0.15,0.15,0.3,0.45,0.05,0.1,0.4,0.5,0,0,0.5,0.55,0,0,0.45),byrow=TRUE,ncol=4)
+
 
 result = matrix(0,10000)
 for (i in 1:10000) {
-  result[i]=one_sml(scenario42,ssize=30,Tau=0.5,m=3,delta=0.7)
+  result[i]=one_sml(scenario64,ssize=30,Tau=0.5,m=3,delta=0.7)
 }
 a=hist(result)
 a$counts
